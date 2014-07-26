@@ -92,11 +92,6 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 }
                 if (g == CodeGenerated(job)) {
                 	
-                	if(extensionInfo().getOptions().count_number_of_fors)
-                		goals.add(CountNumberOfFor(job));
-                	if(extensionInfo().getOptions().fix_race)
-                		goals.add(FixRace(job));
-                    
                     goals.add(JavaCodeGenStart(job));
 //                    goals.add(ClosuresToStaticMethods(job));
                     goals.add(StaticInitializer(job));
@@ -230,14 +225,6 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new ValidatingVisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
         }
 
-        public Goal CountNumberOfFor(Job job) {
-       		TypeSystem ts = extInfo.typeSystem();
-       		return new ValidatingVisitorGoal("CountNumberOfFor", job, new CountNumberOfForLoop(ts)).intern(this);
-        }
-        public Goal FixRace(Job job) {
-       		TypeSystem ts = extInfo.typeSystem();
-       		return new ValidatingVisitorGoal("FixRaceCondition", job, new FixRaceCondition(ts)).intern(this);
-        }
     }
 
     @Override

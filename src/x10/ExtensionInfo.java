@@ -133,7 +133,8 @@ import x10.visit.InstanceInvariantChecker;
 import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
-import x10c.visit.CountNumberOfForLoop;
+import x10.visit.CountNumberOfForLoop;
+import x10.visit.FixRaceCondition;
 import x10cpp.postcompiler.PrecompiledLibrary;
 import x10.visit.DotTranslator;
 import x10.visit.CommunicationOptimizer;
@@ -610,9 +611,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            List<Goal> goals = new ArrayList<Goal>();
 
            addSemanticCheckSourceGoals(job, goals);
-
-
            X10CompilerOptions opts = extensionInfo().getOptions();
+
+           if(extensionInfo().getOptions().count_number_of_fors)
+       			goals.add(CountNumberOfFor(job));
+       	
+           if(opts.fix_race)
+      			goals.add(FixRace(job));
+          
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
                final Goal typeCheckBarrierGoal = addPreOptimizationGoals(job, goals);
@@ -1144,8 +1150,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
        }
-       
-       public Goal InnerClassRemover(Job job) {
+
+		public Goal CountNumberOfFor(Job job) {
+			TypeSystem ts = extInfo.typeSystem();
+			return new ValidatingVisitorGoal("CountNumberOfFor", job,
+					new CountNumberOfForLoop(ts)).intern(this);
+		}
+
+		public Goal FixRace(Job job) {
+			TypeSystem ts = extInfo.typeSystem();
+			NodeFactory nf = extInfo.nodeFactory();
+			return new ValidatingVisitorGoal("FixRaceCondition", job,
+					new FixRaceCondition(job, ts, nf)).intern(this);
+		}
+
+		public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
