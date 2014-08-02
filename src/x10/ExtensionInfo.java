@@ -133,7 +133,7 @@ import x10.visit.InstanceInvariantChecker;
 import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
-import x10.visit.CountNumberOfForLoop;
+
 import x10.visit.FixRaceCondition;
 import x10cpp.postcompiler.PrecompiledLibrary;
 import x10.visit.DotTranslator;
@@ -612,9 +612,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            addSemanticCheckSourceGoals(job, goals);
            X10CompilerOptions opts = extensionInfo().getOptions();
-
-           if(extensionInfo().getOptions().count_number_of_fors)
-       			goals.add(CountNumberOfFor(job));
        	
            if(opts.fix_race)
       			goals.add(FixRace(job));
@@ -1151,11 +1148,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ValidatingVisitorGoal("Lowerer", job, new Lowerer(job, ts, nf)).intern(this);
        }
 
-		public Goal CountNumberOfFor(Job job) {
-			TypeSystem ts = extInfo.typeSystem();
-			return new ValidatingVisitorGoal("CountNumberOfFor", job,
-					new CountNumberOfForLoop(ts)).intern(this);
-		}
 
 		public Goal FixRace(Job job) {
 			TypeSystem ts = extInfo.typeSystem();

@@ -31,47 +31,38 @@ import x10.ast.Finish;
 
 public class FixRaceCondition extends ContextVisitor {
 	
+	// Flags to check the existance of Final and Async block
 	private boolean _isInFinal = false;
 	private boolean _isInAsync = false;
 	
-	
     public FixRaceCondition(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-
     }
-
     @Override
     public Node override(Node parent, Node n) {
-    	if (n instanceof Async) {
+    	if (n instanceof Async)  		//Visit Async
     		_isInAsync = true;
-    		return null;
-    	}
-        if (n instanceof Finish) {
+    	else if (n instanceof Finish) 	//Visit Finish
             _isInFinal = true;
-            return null;
-        }
-        if (n instanceof Eval)
+    	else if (n instanceof Eval)
     	{
     		Eval eval = (Eval)n;
 	    	Position pos = eval.position();
+	    	//Are you already visited Async and Finish blocks?
 	        if ((eval.expr() instanceof Assign) && _isInAsync && _isInFinal) {
 	        	Assign f = (Assign) eval.expr();
+	        	// Use the general NodeFactory object to change the code 
 	            Atomic a = nf.Atomic(pos, f.left(), eval);
 	            return a;
 	        }
     	}
         return null;
     }
-
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-    	
-    	if (n instanceof Async) {
+    	if (n instanceof Async) 
     		_isInAsync = false;
-    	}
-        if (n instanceof Finish) {
+    	else if (n instanceof Finish)
             _isInFinal = false;
-        }
         return n;
     }
-
 }

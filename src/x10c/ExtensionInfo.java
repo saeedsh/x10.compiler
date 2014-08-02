@@ -42,6 +42,7 @@ import x10c.visit.NativeClassVisitor;
 import x10c.visit.RailInLoopOptimizer;
 import x10c.visit.StaticInitializer;
 import x10c.visit.VarsBoxer;
+import x10c.visit.CountNumberOfForLoop;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
@@ -89,7 +90,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                     goals.add(VarsBoxer(job));
                 }
                 if (g == CodeGenerated(job)) {
-                	
+                    if(extensionInfo().getOptions().count_number_of_fors)
+               			goals.add(CountNumberOfFor(job));
+                    
                     goals.add(JavaCodeGenStart(job));
 //                    goals.add(ClosuresToStaticMethods(job));
                     goals.add(StaticInitializer(job));
@@ -222,6 +225,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         public Goal PreCodegenASTInvariantChecker(Job job) {
             return new ValidatingVisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
         }
+		public Goal CountNumberOfFor(Job job) {
+			TypeSystem ts = extInfo.typeSystem();
+			return new ValidatingVisitorGoal("CountNumberOfFor", job,
+					new CountNumberOfForLoop(ts)).intern(this);
+		}
 
     }
 
